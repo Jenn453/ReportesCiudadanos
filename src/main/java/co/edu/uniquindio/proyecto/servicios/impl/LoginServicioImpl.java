@@ -80,55 +80,6 @@ public class LoginServicioImpl implements LoginServicio {
 
 
 
-    @Override
-    public void recuperarPassword(UsuarioNuevoCodigoDTO usuarioNuevoCodigoDTO) throws Exception {
-
-        // 1. Generar un nuevo código de activación
-        String nuevoCodigo = usuarioServicioImpl.generarCodigoAleatorio();
-
-        // 2. Buscar el usuario por su correo
-        Optional<Usuario> usuarioOptional = usuarioRepo.findByEmail(usuarioNuevoCodigoDTO.email());
-        if (usuarioOptional.isEmpty()) {
-            throw new UsuarioNoEncontradoException("No se encontró un usuario con el email " + usuarioNuevoCodigoDTO.email());
-        }
-
-        // 3. Obtener el usuario
-        Usuario usuario = usuarioOptional.get();
-
-        // 4. Crear un nuevo código de validación
-        CodigoValidacion codigo = new CodigoValidacion(
-                LocalDateTime.now(),
-                nuevoCodigo
-        );
-
-        // 5. Asignar el nuevo código al usuario
-        usuario.setCodigoValidacion(codigo);
-        usuarioRepo.save(usuario); // Guardar los cambios en la base de datos
-
-        // 6. Enviar el código de activación por correo
-        String cuerpoCorreo = "Tu codigo de recuperacion de password es: " + nuevoCodigo;
-        EmailDTO emailDTO = new EmailDTO("Código de Recuperacion de Password", cuerpoCorreo, usuarioNuevoCodigoDTO.email());
-        emailServicio.enviarCorreo(emailDTO); // Enviar el correo con el código
-    }
-
-    @Override
-    public void actualizarPassword(PasswordNuevoDTO passwordNuevoDTO) throws Exception {
-        Optional<Usuario> usuarioOptional = usuarioRepo.findByEmail(passwordNuevoDTO.email());
-        if (usuarioOptional.isEmpty()) {
-            throw new UsuarioNoEncontradoException("No se encontró un usuario con el email " + passwordNuevoDTO.email());
-        }
-
-        Usuario usuario = usuarioOptional.get();
-
-        if(!usuario.getCodigoValidacion().getCodigo().equals(passwordNuevoDTO.codigo())){
-            throw new DatosInvalidosException("El codigo no coincide");
-        }
-
-        usuario.setPassword(passwordEncoder.encode(passwordNuevoDTO.nuevoPassword()));
-        usuario.setCodigoValidacion(null);
-        usuarioRepo.save(usuario);
-
-    }
 
 
 }

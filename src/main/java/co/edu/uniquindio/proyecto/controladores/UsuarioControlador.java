@@ -33,7 +33,7 @@ public class UsuarioControlador {
         return ResponseEntity.ok(new MensajeDTO<>(false, "Activado exitosamente"));
     }
 
-    //@SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping
     @Operation(summary = "Editar Usuario")
     public ResponseEntity<MensajeDTO<String>> editar(@Valid @RequestBody EditarUsuarioDTO cuenta) throws Exception {
@@ -41,14 +41,14 @@ public class UsuarioControlador {
         return ResponseEntity.ok(new MensajeDTO<>(false, "Cuenta editada exitosamente"));
     }
 
-    //@SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/eliminar")
     @Operation(summary = "Eliminar Usuario")
     public ResponseEntity<MensajeDTO<String>> eliminar() throws Exception {
         usuarioServicio.eliminar();
         return ResponseEntity.ok(new MensajeDTO<>(false, "Cuenta eliminada exitosamente"));
     }
-    //@SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     @Operation(summary = "Consultar Usuario")
     public ResponseEntity<MensajeDTO<UsuarioDTO>> obtener() throws Exception {
