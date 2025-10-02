@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface LoginServicio {
 
     TokenDTO login(LoginDTO loginDTO) throws Exception ;
+    void  recuperarPassword(UsuarioNuevoCodigoDTO usuarioNuevoCodigoDTO) throws Exception ;
 
+    void  actualizarPassword(PasswordNuevoDTO passwordNuevoDTO) throws Exception;
 
 }

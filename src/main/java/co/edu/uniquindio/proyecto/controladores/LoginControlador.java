@@ -29,6 +29,19 @@ public class LoginControlador {
         return ResponseEntity.ok(new MensajeDTO<>(false, tokenDTO));
     }
 
+    @PostMapping("/recuperarPassword")
+    @Operation(summary = "enviar codigo")
+    public ResponseEntity<MensajeDTO<String>> recuperarPassword(@Valid @RequestBody UsuarioNuevoCodigoDTO usuarioNuevoCodigoDTO) throws Exception {
+        loginServicio.recuperarPassword(usuarioNuevoCodigoDTO);
+        return ResponseEntity.ok(new MensajeDTO<>(false, "Código enviado al correo"));
+    }
+
+    @PostMapping("/password/nuevo")
+    public ResponseEntity<MensajeDTO<String>> actualizarPassword(@Valid @RequestBody PasswordNuevoDTO passwordNuevoDTO) throws Exception {
+        loginServicio.actualizarPassword(passwordNuevoDTO);
+        return ResponseEntity.ok(new MensajeDTO<>(false, "Contraseña actualizada"));
+    }
+
 
 
 
