@@ -48,6 +48,7 @@ public class UsuarioControlador {
         usuarioServicio.eliminar();
         return ResponseEntity.ok(new MensajeDTO<>(false, "Cuenta eliminada exitosamente"));
     }
+
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     @Operation(summary = "Consultar Usuario")
