@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyecto.dto.Reportes;
+package co.edu.uniquindio.proyecto.dto.reportes;
 
 import co.edu.uniquindio.proyecto.dto.UbicacionDTO;
 import jakarta.validation.constraints.NotBlank;

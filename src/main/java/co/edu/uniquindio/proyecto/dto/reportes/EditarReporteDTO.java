@@ -1,17 +1,17 @@
-package co.edu.uniquindio.proyecto.dto.Reportes;
+package co.edu.uniquindio.proyecto.dto.reportes;
 
 import co.edu.uniquindio.proyecto.dto.UbicacionDTO;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-
-public record CrearReporteDTO(
+public record EditarReporteDTO(
         @NotBlank String titulo,
+        @NotBlank String categoria,
+        @NotBlank String ciudad,
         @NotBlank String descripcion,
         @NotNull UbicacionDTO ubicacion,
-        @NotBlank String ciudad,//  Aquí agregamos el objeto de ubicación
-        List<String>imagenes,
-        @NotBlank String categoria
+        @NotEmpty List<String> imagen
 ) {}
