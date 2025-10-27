@@ -11,6 +11,8 @@ public interface ReporteServicio {
 
     void crearReporte(CrearReporteDTO crearReporteDTO) throws Exception ;
 
+    int marcarImportante( String id) throws Exception ;
+
     List<ReporteDTO> obtenerReportes() throws Exception;
 
     List<ReporteDTO> obtenerReportesUsuario() throws Exception ;

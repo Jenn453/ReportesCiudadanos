@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ReporteServicioImpl implements ReporteServicio {
@@ -73,6 +77,37 @@ public class ReporteServicioImpl implements ReporteServicio {
                 "reports"
         );
 
+    }
+    @Override
+    public int marcarImportante(String id) throws Exception {
+
+        Optional<Reporte> optionalReporte = reporteRepo.findById(id);
+
+        if (optionalReporte.isEmpty()) {
+            throw new ReporteNoEncontradoException("No existe el reporte con id: " + id);
+        }
+
+        Reporte reporte = optionalReporte.get();
+        String usuarioIdString = usuarioServicio.obtenerIdSesion();
+        ObjectId usuarioId = new ObjectId(usuarioIdString);
+        List<ObjectId> listaUsuarios = reporte.getContadorImportante();
+
+        if (listaUsuarios == null) {
+            listaUsuarios = new ArrayList<>();
+            listaUsuarios.add(usuarioId);
+            reporte.setContadorImportante(listaUsuarios);
+            reporteRepo.save(reporte);
+            return 1;
+        }
+
+        if (!listaUsuarios.contains(usuarioId)) {
+
+            listaUsuarios.add(usuarioId);
+            reporte.setContadorImportante(listaUsuarios);
+            reporteRepo.save(reporte);
+        }
+
+        return listaUsuarios.size();
     }
 
     @Override
@@ -169,6 +204,7 @@ public class ReporteServicioImpl implements ReporteServicio {
 
         return reporteRepo.obtenerReporteId(new ObjectId(id));
     }
+
 
     @Override
     public void cambiarEstado(String id, EstadoReporteDTO estadoDTO) throws Exception {

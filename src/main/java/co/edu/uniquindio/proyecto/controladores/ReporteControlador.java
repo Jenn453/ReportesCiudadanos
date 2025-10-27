@@ -84,6 +84,13 @@ public class ReporteControlador {
         return ResponseEntity.ok(new MensajeDTO<>(false, reporte));
     }
 
+    @PutMapping("/{id}/importante")
+    @Operation(summary = "Marcar reporte como importante")
+    public ResponseEntity<MensajeDTO<Integer>> marcarImportante(@PathVariable String id) throws Exception {
+        int contador = reporteServicio.marcarImportante(id);
+        return ResponseEntity.ok(new MensajeDTO<>(false, contador));
+    }
+
     @PostMapping("/{id}/estado")
     @Operation(summary = "Editar estado de reporte")
     public ResponseEntity<MensajeDTO<String>> cambiarEstado(
