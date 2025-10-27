@@ -56,7 +56,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         // Configura las políticas de CORS para permitir solicitudes desde el frontend
@@ -71,14 +70,12 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
-
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         // Permite codificar y verificar contraseñas utilizando BCrypt
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -86,9 +83,6 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 }
-
-
-
 
 /*.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/login/**","/api/usuarios/notificacion","/api/usuarios/Activar","/api/usuarios", "/api/imagenes").permitAll()
 // Permitir SOLO GET en /api/moderador/** para CLIENTE y MODERADOR

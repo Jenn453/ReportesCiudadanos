@@ -45,8 +45,6 @@ public class JWTFilter extends OncePerRequestFilter{
 
 
         try {
-
-
             //Validar el token y obtener el payload
             Jws<Claims> payload = jwtUtil.parseJwt(token);
             String username = payload.getPayload().getSubject();
@@ -71,8 +69,6 @@ public class JWTFilter extends OncePerRequestFilter{
                         null,
                         userDetails.getAuthorities()
                 );
-
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
