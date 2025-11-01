@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +33,25 @@ public class RestExceptionHandler {
     }
 
 
+    @ExceptionHandler(DatoRepetidoException.class)
+    public ResponseEntity<String> manejarDatoRepetidoException(DatoRepetidoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
     @ExceptionHandler(UsuarioNoEncontradoException.class)
     public ResponseEntity<String> manejarUsuarioNoEncontradoException(UsuarioNoEncontradoException ex) {
         return ResponseEntity.status(404).body(ex.getMessage());
     }
 
+    @ExceptionHandler(EmailNoEncontradoException.class)
+    public ResponseEntity<String> manejarEmailNoEncontradoException(EmailNoEncontradoException ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
+    }
 
+    @ExceptionHandler(ComentarioNoEncontradoException.class)
+    public ResponseEntity<String> manejarComentarioNoEncontradoException(ComentarioNoEncontradoException ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
+    }
 
 
     @ExceptionHandler(NoResourceFoundException.class)
@@ -63,7 +75,17 @@ public class RestExceptionHandler {
         return ResponseEntity.internalServerError().body( new MensajeDTO<>(true, e.getMessage()) );
     }
 
-    
+    @ExceptionHandler(CategoriaNoEncontradaException.class)
+    public ResponseEntity<String> manejarCategoriaNoEncontradaException(CategoriaNoEncontradaException ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ReporteNoEncontradoException.class)
+    public ResponseEntity<MensajeDTO<String>> manejarReporteNoEncontradoException(ReporteNoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MensajeDTO<>(true, ex.getMessage()));
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<MensajeDTO<List<ValidacionDTO>>> validationExceptionHandler ( MethodArgumentNotValidException ex ) {

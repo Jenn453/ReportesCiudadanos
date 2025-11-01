@@ -1,11 +1,11 @@
 package co.edu.uniquindio.proyecto.controladores;
 
 
+
 import co.edu.uniquindio.proyecto.dto.MensajeDTO;
-import co.edu.uniquindio.proyecto.dto.reportes.CrearReporteDTO;
-import co.edu.uniquindio.proyecto.dto.reportes.EditarReporteDTO;
-import co.edu.uniquindio.proyecto.dto.reportes.EstadoReporteDTO;
-import co.edu.uniquindio.proyecto.dto.reportes.ReporteDTO;
+import co.edu.uniquindio.proyecto.dto.comentarios.ComentarioDTO;
+import co.edu.uniquindio.proyecto.dto.reportes.*;
+import co.edu.uniquindio.proyecto.modelo.documentos.Reporte;
 import co.edu.uniquindio.proyecto.servicios.ReporteServicio;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,12 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/reportes")
-public class ReporteControlador {
+public class ReporteControlador{
 
     private final ReporteServicio reporteServicio; // Inyectar servicio
 
@@ -84,6 +85,7 @@ public class ReporteControlador {
         return ResponseEntity.ok(new MensajeDTO<>(false, reporte));
     }
 
+
     @PutMapping("/{id}/importante")
     @Operation(summary = "Marcar reporte como importante")
     public ResponseEntity<MensajeDTO<Integer>> marcarImportante(@PathVariable String id) throws Exception {
@@ -101,3 +103,4 @@ public class ReporteControlador {
     }
 
 }
+

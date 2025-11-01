@@ -1,7 +1,6 @@
 package co.edu.uniquindio.proyecto.modelo.documentos;
 
-import co.edu.uniquindio.proyecto.excepciones.DatosInvalidosException;
-import co.edu.uniquindio.proyecto.excepciones.UsuarioNoEncontradoException;
+import co.edu.uniquindio.proyecto.modelo.enums.Ciudad;
 import co.edu.uniquindio.proyecto.modelo.enums.EstadoUsuario;
 import co.edu.uniquindio.proyecto.modelo.enums.Rol;
 import co.edu.uniquindio.proyecto.modelo.vo.CodigoValidacion;
@@ -12,7 +11,6 @@ import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import co.edu.uniquindio.proyecto.modelo.enums.Ciudad;
 
 import java.time.LocalDateTime;
 

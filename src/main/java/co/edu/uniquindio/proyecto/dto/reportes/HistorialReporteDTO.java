@@ -7,5 +7,5 @@ public record HistorialReporteDTO(
         EstadoReporte estado,
         String fecha,
         String fechaLimiteEdicion
-)
+        )
 {}

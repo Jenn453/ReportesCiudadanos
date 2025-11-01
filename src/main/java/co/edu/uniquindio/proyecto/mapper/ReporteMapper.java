@@ -1,6 +1,5 @@
 package co.edu.uniquindio.proyecto.mapper;
 
-
 import co.edu.uniquindio.proyecto.dto.reportes.CrearReporteDTO;
 import co.edu.uniquindio.proyecto.dto.reportes.EditarReporteDTO;
 import co.edu.uniquindio.proyecto.dto.reportes.ReporteDTO;
@@ -22,10 +21,11 @@ public interface ReporteMapper {
     @Mapping(target = "estadoActual", constant = "PENDIENTE")
     Reporte toDocument(CrearReporteDTO reporteDTO);
 
+    @Mapping(source = "id", target = "id", qualifiedByName = "objectIdToString")
     ReporteDTO toDTO(Reporte reporte);
 
-    // Método para mapear de ObjectId a String
-    default String map(ObjectId value) {
+    @Named("objectIdToString")
+    default String objectIdToString(ObjectId value) {
         return value != null ? value.toString() : null;
     }
 

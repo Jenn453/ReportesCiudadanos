@@ -1,17 +1,16 @@
 package co.edu.uniquindio.proyecto.servicios.impl;
 
-
 import co.edu.uniquindio.proyecto.dto.notificaciones.EmailDTO;
-import co.edu.uniquindio.proyecto.dto.reportes.CrearReporteDTO;
 import co.edu.uniquindio.proyecto.dto.notificaciones.NotificacionDTO;
-import co.edu.uniquindio.proyecto.excepciones.*;
 import co.edu.uniquindio.proyecto.dto.reportes.*;
+import co.edu.uniquindio.proyecto.excepciones.*;
+import co.edu.uniquindio.proyecto.mapper.ComentarioMapper;
 import co.edu.uniquindio.proyecto.mapper.ReporteMapper;
 import co.edu.uniquindio.proyecto.modelo.documentos.Categoria;
 import co.edu.uniquindio.proyecto.modelo.documentos.Reporte;
 import co.edu.uniquindio.proyecto.modelo.documentos.Usuario;
-
 import co.edu.uniquindio.proyecto.modelo.enums.EstadoReporte;
+import co.edu.uniquindio.proyecto.modelo.vo.HistorialReporte;
 import co.edu.uniquindio.proyecto.repositorios.CategoriaRepo;
 import co.edu.uniquindio.proyecto.repositorios.ReporteRepo;
 import co.edu.uniquindio.proyecto.repositorios.UsuarioRepo;
@@ -26,22 +25,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ReporteServicioImpl implements ReporteServicio {
 
-
+    private final ReporteRepo reporteRepo;
     private final ReporteMapper reporteMapper;
     private final UsuarioRepo usuarioRepo;
     private final UsuarioServicioImpl usuarioServicio;
     private final CategoriaRepo categoriaRepo;
-    private final ReporteRepo reporteRepo;
-
+    private final ComentarioMapper comentarioMapper;
     private final EmailServicio emailServicio;
 
     @Override
@@ -56,19 +51,17 @@ public class ReporteServicioImpl implements ReporteServicio {
         Usuario usuario = usuarioRepo.findById(new ObjectId(id)).orElseThrow(() -> new Exception("Usuario no encontrado"));
         reporte.setUsuarioId(usuario.getId());
 
-        reporte.setCategoria(crearReporteDTO.categoria());
-
         // Validar si el categoriaId es válido antes de intentar convertirlo
-        //if (crearReporteDTO.categoria() == null || !ObjectId.isValid(crearReporteDTO.categoria())) {
-          //  throw new CategoriaNoEncontradaException("Categoría no encontrada");
-        //}
+        if (crearReporteDTO.categoria() == null || !ObjectId.isValid(crearReporteDTO.categoria())) {
+            throw new CategoriaNoEncontradaException("Categoría no encontrada");
+        }
 
         // Validar que la categoría existe antes de asignarla al reporte
-        //Categoria categoria = categoriaRepo.findByNombre(crearReporteDTO.categoria())
-          //      .orElseThrow(() -> new CategoriaNoEncontradaException("Categoría no encontrada"));
+        ObjectId categoriaId = new ObjectId(crearReporteDTO.categoria());
+        Categoria categoria = categoriaRepo.findById(categoriaId).orElseThrow(() -> new CategoriaNoEncontradaException("Categoría no encontrada"));
 
         // Asignar la categoría al reporte
-        //reporte.setCategoriaId(categoria.getId());
+        reporte.setCategoriaId(categoria.getId());
 
         reporteRepo.save(reporte);
         NotificacionDTO notificacionDTO = new NotificacionDTO(
@@ -77,37 +70,8 @@ public class ReporteServicioImpl implements ReporteServicio {
                 "reports"
         );
 
-    }
-    @Override
-    public int marcarImportante(String id) throws Exception {
 
-        Optional<Reporte> optionalReporte = reporteRepo.findById(id);
 
-        if (optionalReporte.isEmpty()) {
-            throw new ReporteNoEncontradoException("No existe el reporte con id: " + id);
-        }
-
-        Reporte reporte = optionalReporte.get();
-        String usuarioIdString = usuarioServicio.obtenerIdSesion();
-        ObjectId usuarioId = new ObjectId(usuarioIdString);
-        List<ObjectId> listaUsuarios = reporte.getContadorImportante();
-
-        if (listaUsuarios == null) {
-            listaUsuarios = new ArrayList<>();
-            listaUsuarios.add(usuarioId);
-            reporte.setContadorImportante(listaUsuarios);
-            reporteRepo.save(reporte);
-            return 1;
-        }
-
-        if (!listaUsuarios.contains(usuarioId)) {
-
-            listaUsuarios.add(usuarioId);
-            reporte.setContadorImportante(listaUsuarios);
-            reporteRepo.save(reporte);
-        }
-
-        return listaUsuarios.size();
     }
 
     @Override
@@ -207,6 +171,38 @@ public class ReporteServicioImpl implements ReporteServicio {
 
 
     @Override
+    public int marcarImportante(String id) throws Exception {
+
+        Optional<Reporte> optionalReporte = reporteRepo.findById(id);
+
+        if (optionalReporte.isEmpty()) {
+            throw new ReporteNoEncontradoException("No existe el reporte con id: " + id);
+        }
+
+        Reporte reporte = optionalReporte.get();
+        String usuarioIdString = usuarioServicio.obtenerIdSesion();
+        ObjectId usuarioId = new ObjectId(usuarioIdString);
+        List<ObjectId> listaUsuarios = reporte.getContadorImportante();
+
+        if (listaUsuarios == null) {
+            listaUsuarios = new ArrayList<>();
+            listaUsuarios.add(usuarioId);
+            reporte.setContadorImportante(listaUsuarios);
+            reporteRepo.save(reporte);
+            return 1;
+        }
+
+        if (!listaUsuarios.contains(usuarioId)) {
+
+            listaUsuarios.add(usuarioId);
+            reporte.setContadorImportante(listaUsuarios);
+            reporteRepo.save(reporte);
+        }
+
+        return listaUsuarios.size();
+    }
+
+    @Override
     public void cambiarEstado(String id, EstadoReporteDTO estadoDTO) throws Exception {
         Optional<Reporte> optionalReporte = reporteRepo.findById(id);
 
@@ -252,51 +248,52 @@ public class ReporteServicioImpl implements ReporteServicio {
         // Actualizar estado actual del reporte
         reporte.setEstadoActual(nuevoEstado);
         reporteRepo.save(reporte);
-//
-//        // Crear historial del cambio
-//        HistorialReporte.HistorialReporteBuilder historialBuilder = HistorialReporte.builder()
-//                .estado(nuevoEstado)
-//                .motivo(estadoDTO.motivo())
-//                .fecha(LocalDateTime.now())
-//                .reporteId(reporte.getId());
-//
-//// Incluir fecha límite si el estado es RECHAZADO
-//        if (nuevoEstado == EstadoReporte.RECHAZADO) {
-//            historialBuilder.fechaLimiteEdicion(reporte.getFechaLimiteEdicion());
-//            // Obtener email del creador del reporte
-//            String emailDestinatario = usuarioRepo.findById(reporte.getUsuarioId())
-//                    .map(Usuario::getEmail)
-//                    .orElseThrow(() -> new EmailNoEncontradoException("No se pudo obtener el email del creador del reporte"));
-//
-//            String cuerpoCorreo = """
-//        ¡Hola!
-//
-//        Tu reporte fue rechazado
-//
-//        Título del reporte: %s
-//        Motivo: %s
-//
-//        Por favor revisa la plataforma para más detalles.
-//
-//        Saludos,
-//        El equipo de Alertas Ciudadanas.
-//        """.formatted(reporte.getTitulo(), estadoDTO.motivo());
-//            EmailDTO emailDTO = new EmailDTO("Reporte rechazado", cuerpoCorreo, emailDestinatario);
-//            emailServicio.enviarCorreo(emailDTO);
-//        }
-//
-//// Construir historial
-//        HistorialReporte historial = historialBuilder.build();
-//
-//// Añadir historial al reporte
-//        if (reporte.getHistorialReporte() == null) {
-//            reporte.setHistorialReporte(new ArrayList<>());
-//        }
-//
-//        reporte.getHistorialReporte().add(historial);
-//
-//// Guardar el reporte con el historial actualizado
-//        reporteRepo.save(reporte);
+
+        // Crear historial del cambio
+        HistorialReporte.HistorialReporteBuilder historialBuilder = HistorialReporte.builder()
+                .estado(nuevoEstado)
+                .motivo(estadoDTO.motivo())
+                .fecha(LocalDateTime.now())
+                .reporteId(reporte.getId());
+
+// Incluir fecha límite si el estado es RECHAZADO
+        if (nuevoEstado == EstadoReporte.RECHAZADO) {
+            historialBuilder.fechaLimiteEdicion(reporte.getFechaLimiteEdicion());
+            // Obtener email del creador del reporte
+            String emailDestinatario = usuarioRepo.findById(reporte.getUsuarioId())
+                    .map(Usuario::getEmail)
+                    .orElseThrow(() -> new EmailNoEncontradoException("No se pudo obtener el email del creador del reporte"));
+
+            String cuerpoCorreo = """
+        ¡Hola!
+
+        Tu reporte fue rechazado
+
+        Título del reporte: %s
+        Motivo: %s
+
+        Por favor revisa la plataforma para más detalles.
+
+        Saludos,
+        El equipo de Alertas Ciudadanas.
+        """.formatted(reporte.getTitulo(), estadoDTO.motivo());
+            EmailDTO emailDTO = new EmailDTO("Reporte rechazado", cuerpoCorreo, emailDestinatario);
+            emailServicio.enviarCorreo(emailDTO);
+        }
+
+// Construir historial
+        HistorialReporte historial = historialBuilder.build();
+
+// Añadir historial al reporte
+        if (reporte.getHistorialReporte() == null) {
+            reporte.setHistorialReporte(new ArrayList<>());
+        }
+
+        reporte.getHistorialReporte().add(historial);
+
+// Guardar el reporte con el historial actualizado
+        reporteRepo.save(reporte);
 
     }
+
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 public record ReporteDTO(
+        String id,
         @NotBlank String usuario,
         @NotBlank String titulo,
         @NotBlank String categoria,
