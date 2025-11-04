@@ -55,7 +55,7 @@ public class UsuarioServicioImpl implements UsuarioServicio {
         // Enviar el código de activación por correo
         String cuerpoCorreo = "Tu código de activación es: " + codigoGenerado;
         EmailDTO emailDTO = new EmailDTO("Código de Activación", cuerpoCorreo, usuario.getEmail());
-        emailServicio.enviarCorreo(emailDTO); // Enviar el correo con el código
+        //emailServicio.enviarCorreo(emailDTO); // Enviar el correo con el código
 
     }
 
