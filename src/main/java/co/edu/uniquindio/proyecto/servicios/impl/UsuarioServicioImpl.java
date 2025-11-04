@@ -53,8 +53,8 @@ public class UsuarioServicioImpl implements UsuarioServicio {
         usuarioRepo.save(usuario);
 
         // Enviar el código de activación por correo
-        String cuerpoCorreo = "Tu código de activación es: " + codigoGenerado;
-        EmailDTO emailDTO = new EmailDTO("Código de Activación", cuerpoCorreo, usuario.getEmail());
+        // cuerpoCorreo = "Tu código de activación es: " + codigoGenerado;
+        //EmailDTO emailDTO = new EmailDTO("Código de Activación", cuerpoCorreo, usuario.getEmail());
         //emailServicio.enviarCorreo(emailDTO); // Enviar el correo con el código
 
     }
@@ -98,9 +98,9 @@ public class UsuarioServicioImpl implements UsuarioServicio {
         usuarioRepo.save(usuario); // Guardar los cambios en la base de datos
 
         // 6. Enviar el código de activación por correo
-        String cuerpoCorreo = "Tu código de activación es: " + nuevoCodigo;
-        EmailDTO emailDTO = new EmailDTO("Código de Activación", cuerpoCorreo, usuarioNuevoCodigoDTO.email());
-        emailServicio.enviarCorreo(emailDTO); // Enviar el correo con el código
+        //String cuerpoCorreo = "Tu código de activación es: " + nuevoCodigo;
+        //EmailDTO emailDTO = new EmailDTO("Código de Activación", cuerpoCorreo, usuarioNuevoCodigoDTO.email());
+        //emailServicio.enviarCorreo(emailDTO); // Enviar el correo con el código
     }
 
     @Override
