@@ -1,4 +1,5 @@
 package co.edu.uniquindio.proyecto.servicios.impl;
+
 import co.edu.uniquindio.proyecto.dto.notificaciones.EmailDTO;
 import co.edu.uniquindio.proyecto.servicios.EmailServicio;
 import lombok.RequiredArgsConstructor;
@@ -7,12 +8,25 @@ import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class EmailServicioImpl implements EmailServicio {
+
+    @Value("${BREVO_SMTP_HOST}")
+    private String smtpHost;
+
+    @Value("${BREVO_SMTP_PORT}")
+    private int smtpPort;
+
+    @Value("${BREVO_SMTP_USER}")
+    private String smtpUser;
+
+    @Value("${BREVO_SMTP_PASSWORD}")
+    private String smtpPassword;
 
     @Async
     @Override
@@ -25,19 +39,20 @@ public class EmailServicioImpl implements EmailServicio {
                 .buildEmail();
 
         try (Mailer mailer = MailerBuilder
-                .withSMTPServer("smtp-relay.brevo.com",587,"9ac2c1001@smtp-brevo.com","bskV9K51G2286pc")
+                .withSMTPServer(smtpHost, smtpPort, smtpUser, smtpPassword)
                 .withTransportStrategy(TransportStrategy.SMTP_TLS)
                 .withDebugLogging(true)
-                .buildMailer()){
+                .buildMailer()) {
 
             mailer.sendMail(email);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error enviando correo", e);
         }
     }
 
+    @Async
     @Override
     public void enviarCorreoComentarioReporte(String nombreUsuario, String comentario, String destinatario) {
         String asunto = "Nuevo comentario en tu reporte";
@@ -46,6 +61,6 @@ public class EmailServicioImpl implements EmailServicio {
                 + "Revisa el reporte para más detalles.";
 
         EmailDTO emailDTO = new EmailDTO(asunto, cuerpoCorreo, destinatario);
-        enviarCorreo(emailDTO); // Usa el método ya existente
+        enviarCorreo(emailDTO);
     }
 }
