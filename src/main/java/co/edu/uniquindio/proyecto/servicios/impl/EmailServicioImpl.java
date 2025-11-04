@@ -1,5 +1,4 @@
 package co.edu.uniquindio.proyecto.servicios.impl;
-
 import co.edu.uniquindio.proyecto.dto.notificaciones.EmailDTO;
 import co.edu.uniquindio.proyecto.servicios.EmailServicio;
 import lombok.RequiredArgsConstructor;
@@ -8,25 +7,12 @@ import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class EmailServicioImpl implements EmailServicio {
-
-    @Value("${BREVO_SMTP_HOST}")
-    private String smtpHost;
-
-    @Value("${BREVO_SMTP_PORT}")
-    private int smtpPort;
-
-    @Value("${BREVO_SMTP_USER}")
-    private String smtpUser;
-
-    @Value("${BREVO_SMTP_PASSWORD}")
-    private String smtpPassword;
 
     @Async
     @Override
@@ -39,20 +25,19 @@ public class EmailServicioImpl implements EmailServicio {
                 .buildEmail();
 
         try (Mailer mailer = MailerBuilder
-                .withSMTPServer(smtpHost, smtpPort, smtpUser, smtpPassword)
+                .withSMTPServer("smtp.gmail.com",587,"moderadoralertas@gmail.com","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")
                 .withTransportStrategy(TransportStrategy.SMTP_TLS)
                 .withDebugLogging(true)
-                .buildMailer()) {
+                .buildMailer()){
 
             mailer.sendMail(email);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error enviando correo", e);
+            throw new RuntimeException(e);
         }
     }
 
-    @Async
     @Override
     public void enviarCorreoComentarioReporte(String nombreUsuario, String comentario, String destinatario) {
         String asunto = "Nuevo comentario en tu reporte";
@@ -61,6 +46,6 @@ public class EmailServicioImpl implements EmailServicio {
                 + "Revisa el reporte para más detalles.";
 
         EmailDTO emailDTO = new EmailDTO(asunto, cuerpoCorreo, destinatario);
-        enviarCorreo(emailDTO);
+        enviarCorreo(emailDTO); // Usa el método ya existente
     }
 }
