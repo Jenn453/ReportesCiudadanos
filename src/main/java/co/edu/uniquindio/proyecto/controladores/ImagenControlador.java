@@ -1,8 +1,10 @@
 package co.edu.uniquindio.proyecto.controladores;
 
+import co.edu.uniquindio.proyecto.dto.MensajeDTO;
 import co.edu.uniquindio.proyecto.servicios.ImagenServicio;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,8 +22,15 @@ public class ImagenControlador {
 
     @PostMapping(consumes = "multipart/form-data")
     @Operation(summary = "Subir imagen reporte")
-    public String subir(@RequestParam("imagen") MultipartFile imagen) throws Exception{
+    public String subir(@RequestParam("imagen") MultipartFile imagen) throws Exception {
         Map<String, Object> response = imagenServicio.subirImagen(imagen);
         return response.get("url").toString();
+    }
+
+    public ResponseEntity<MensajeDTO<String>> eliminar(
+            String id) throws Exception {
+        imagenServicio.eliminarImagen(id);
+        return ResponseEntity.ok().body(new MensajeDTO<>(false, "Imagen eliminada correctamente"));
+
     }
 }

@@ -123,8 +123,14 @@ public class ReporteServicioImpl implements ReporteServicio {
             throw new AccesoNoPermitidoException("No tienes permiso para editar este reporte.");
         }
 
-        // Mapear y guardar
+        // ... (línea del mapper)
         reporteMapper.toDocument(editarReporteDTO, reporte);
+
+        // ===== CÓDIGO FINAL Y CORRECTO =====
+        if (editarReporteDTO.imagenes() != null) {
+            reporte.setImagenes(editarReporteDTO.imagenes());
+        }
+
         reporteRepo.save(reporte);
     }
 

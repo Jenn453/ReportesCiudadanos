@@ -13,5 +13,5 @@ public record EditarReporteDTO(
         @NotBlank String ciudad,
         @NotBlank String descripcion,
         @NotNull UbicacionDTO ubicacion,
-        @NotEmpty List<String> imagen
+        @NotEmpty List<String> imagenes
 ) {}
