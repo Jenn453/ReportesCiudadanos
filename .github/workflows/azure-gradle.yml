@@ -9,6 +9,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +29,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 🔐 LOGIN EN AZURE (usa los secrets que ya tienes)
       - name: Azure Login
         uses: azure/login@v2
         with:
