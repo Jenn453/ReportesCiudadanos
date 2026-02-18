@@ -16,17 +16,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailServicioImpl implements EmailServicio {
 
-    @Value("${BREVO_SMTP_HOST}")
-    private String smtpHost;
-
-    @Value("${BREVO_SMTP_PORT}")
-    private int smtpPort;
-
-    @Value("${BREVO_SMTP_USER}")
-    private String smtpUser;
-
-    @Value("${BREVO_SMTP_PASSWORD}")
-    private String smtpPassword;
 
     @Async
     @Override
@@ -39,16 +28,16 @@ public class EmailServicioImpl implements EmailServicio {
                 .buildEmail();
 
         try (Mailer mailer = MailerBuilder
-                .withSMTPServer(smtpHost, smtpPort, smtpUser, smtpPassword)
+                .withSMTPServer("smtp.gmail.com",587,"moderadoralertas@gmail.com","osmrgacvamidbotn")
                 .withTransportStrategy(TransportStrategy.SMTP_TLS)
                 .withDebugLogging(true)
-                .buildMailer()) {
+                .buildMailer()){
 
             mailer.sendMail(email);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error enviando correo", e);
+            throw new RuntimeException(e);
         }
     }
 
