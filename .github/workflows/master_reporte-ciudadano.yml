@@ -24,14 +24,14 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      - name: Copy bootJar only
+      - name: Prepare artifact
         run: |
           JAR=$(ls build/libs/*.jar | grep -v plain)
-          cp $JAR build/libs/app.jar
+          mv $JAR app.jar
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: reporte-ciudadano
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: build/libs/app.jar
+          package: app.jar
