@@ -81,7 +81,7 @@ public class SecurityConfig {
         // ✅ Dominios permitidos (local + producción)
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:4200",
-                "https://ddk7dwvbctba.cloudfront.net"
+                "https://*.cloudfront.net"
         ));
 
         config.setAllowedMethods(List.of(
