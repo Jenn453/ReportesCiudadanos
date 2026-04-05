@@ -4,6 +4,7 @@ public record UsuarioDTO(
         String nombre,
         String telefono,
         String direccion,
+        String ciudad,
         String email
 ){
 }
