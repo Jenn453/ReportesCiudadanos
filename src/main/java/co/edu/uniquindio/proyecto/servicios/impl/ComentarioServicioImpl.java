@@ -15,13 +15,11 @@ import co.edu.uniquindio.proyecto.servicios.ComentarioServicio;
 import co.edu.uniquindio.proyecto.servicios.EmailServicio;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +31,6 @@ public class ComentarioServicioImpl implements ComentarioServicio {
     private final UsuarioServicioImpl usuarioServicio;
     private final UsuarioRepo usuarioRepo;
     private final EmailServicio emailServicio;
-
 
     @Override
     public void agregarComentario(String idReporte, CrearComentarioDTO crearComentarioDTO) throws Exception {
@@ -60,26 +57,26 @@ public class ComentarioServicioImpl implements ComentarioServicio {
         // Obtener email del creador del reporte
         String emailDestinatario = usuarioRepo.findById(reporte.getUsuarioId())
                 .map(Usuario::getEmail)
-                .orElseThrow(() -> new EmailNoEncontradoException("No se pudo obtener el email del creador del reporte"));
+                .orElseThrow(
+                        () -> new EmailNoEncontradoException("No se pudo obtener el email del creador del reporte"));
 
         String cuerpoCorreo = """
-        ¡Hola!
+                ¡Hola!
 
-        Has recibido un nuevo comentario en tu reporte.
+                Has recibido un nuevo comentario en tu reporte.
 
-        Título del reporte: %s
-        Usuario que comentó: %s
-        Comentario: %s
+                Título del reporte: %s
+                Usuario que comentó: %s
+                Comentario: %s
 
-        Por favor revisa la plataforma para más detalles.
+                Por favor revisa la plataforma para más detalles.
 
-        Saludos,
-        El equipo de Alertas Ciudadanas.
-        """.formatted(reporte.getTitulo(), nombreUsuario, crearComentarioDTO.mensaje());
+                Saludos,
+                El equipo de Alertas Ciudadanas.
+                """.formatted(reporte.getTitulo(), nombreUsuario, crearComentarioDTO.mensaje());
         EmailDTO emailDTO = new EmailDTO("Nuevo comentario en tu reporte", cuerpoCorreo, emailDestinatario);
         emailServicio.enviarCorreo(emailDTO);
     }
-
 
     @Override
     public List<ComentarioDTO> obtenerComentarios(String idReporte) throws Exception {
@@ -97,34 +94,34 @@ public class ComentarioServicioImpl implements ComentarioServicio {
                 .map(comentarioMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
     @Override
     public void eliminarComentario(String id) throws Exception {
-        //Validamos el id
+        // Validamos el id
         if (!ObjectId.isValid(id)) {
-            throw new CategoriaNoEncontradaException("No se encontró el comentario con el id "+id);
+            throw new ComentarioNoEncontradoException("No se encontró el comentario con el id " + id);
         }
 
-
-        //Buscamos el usuario que se quiere obtener
+        // Buscamos el comentario
         ObjectId objectId = new ObjectId(id);
-
         Optional<Comentario> comentarioOptional = comentarioRepo.findById(objectId);
 
-
-        //Si no se encontró el usuario, lanzamos una excepción
-        if(comentarioOptional.isEmpty()){
-            throw new ComentarioNoEncontradoException("No se encontró el comentario con el id "+id);
+        // Si no se encontró el comentario, lanzamos una excepción
+        if (comentarioOptional.isEmpty()) {
+            throw new ComentarioNoEncontradoException("No se encontró el comentario con el id " + id);
         }
 
-
-        //Obtenemos el usuario que se quiere eliminar y le asignamos el estado eliminado
+        // Obtenemos el comentario
         Comentario comentario = comentarioOptional.get();
-        // Obtenemos el usuario autenticado
-        String usernameAutenticado = SecurityContextHolder.getContext().getAuthentication().getName();
-        ObjectId usuarioAutenticadoId = new ObjectId(usernameAutenticado);
 
-        // Verificamos si el reporte pertenece al usuario autenticado
-        if (!comentario.getClienteId().equals(usuarioAutenticadoId)) {
+        // Obtenemos el ID del usuario autenticado de la sesión
+        String idUsuarioAutenticado = usuarioServicio.obtenerIdSesion();
+        ObjectId usuarioAutenticadoId = new ObjectId(idUsuarioAutenticado);
+        String rolSesion = usuarioServicio.obtenerRolSesion();
+
+        // Verificamos si el comentario pertenece al usuario autenticado O si es
+        // moderador
+        if (!comentario.getClienteId().equals(usuarioAutenticadoId) && !rolSesion.equals("MODERADOR")) {
             throw new AccesoNoPermitidoException("No tienes permiso para eliminar este comentario.");
         }
 

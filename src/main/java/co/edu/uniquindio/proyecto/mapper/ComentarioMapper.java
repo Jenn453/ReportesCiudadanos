@@ -17,6 +17,8 @@ public interface ComentarioMapper {
     @Mapping(target = "reporteId", ignore = true) // Se asigna manualmente
     Comentario toDocument(CrearComentarioDTO crearComentarioDTO);
 
+    @Mapping(target = "id", expression = "java(comentario.getId() != null ? comentario.getId().toString() : null)")
+    @Mapping(target = "clienteId", expression = "java(comentario.getClienteId() != null ? comentario.getClienteId().toString() : null)")
     ComentarioDTO toDTO(Comentario comentario);
 
     default String map(LocalDateTime fecha) {
