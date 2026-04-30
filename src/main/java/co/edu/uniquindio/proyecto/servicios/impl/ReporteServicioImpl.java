@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Counter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ public class ReporteServicioImpl implements ReporteServicio {
     private final CategoriaRepo categoriaRepo;
     private final ComentarioMapper comentarioMapper;
     private final EmailServicio emailServicio;
+    private final MeterRegistry meterRegistry;
 
     @Override
     public void crearReporte(CrearReporteDTO crearReporteDTO) throws Exception {
@@ -64,14 +67,58 @@ public class ReporteServicioImpl implements ReporteServicio {
         reporte.setCategoriaId(categoria.getId());
 
         reporteRepo.save(reporte);
-        NotificacionDTO notificacionDTO = new NotificacionDTO(
-                "Nuevo Reporte",
-                "Se acaba de crear un nuevo reporte: " + reporte.getTitulo(),
-                "reports"
-        );
 
+        // Métrica de creación de reporte (Estado inicial: PENDIENTE)
+        meterRegistry.counter("reportes.estado.cambios", "estado", "PENDIENTE").increment();
 
+        // Notificar a usuarios cercanos (a menos de 500m)
+        notificarUsuariosCercanos(reporte);
+    }
 
+    private void notificarUsuariosCercanos(Reporte reporte) {
+        List<Usuario> usuarios = usuarioRepo.findAll();
+
+        for (Usuario usuario : usuarios) {
+            // No notificar al mismo usuario que creó el reporte y asegurar que el usuario tenga ubicación
+            if (usuario.getUbicacion() != null && !usuario.getId().equals(reporte.getUsuarioId())) {
+                double distancia = calcularDistancia(
+                        reporte.getUbicacion().getLatitud(),
+                        reporte.getUbicacion().getLongitud(),
+                        usuario.getUbicacion().getLatitud(),
+                        usuario.getUbicacion().getLongitud()
+                );
+
+                if (distancia <= 0.5) { // 0.5 km = 500 metros
+                    String cuerpo = String.format(
+                            "¡Hola %s!\n\nSe ha publicado un nuevo reporte cerca de tu ubicación:\n\n" +
+                                    "Título: %s\n" +
+                                    "Descripción: %s\n\n" +
+                                    "Puedes ver más detalles en la aplicación.",
+                            usuario.getNombre(), reporte.getTitulo(), reporte.getDescripcion()
+                    );
+
+                    emailServicio.enviarCorreo(new EmailDTO(
+                            "Nuevo reporte cerca de tu ubicación",
+                            cuerpo,
+                            usuario.getEmail()
+                    ));
+
+                    // Métrica de notificación enviada
+                    meterRegistry.counter("notificaciones.reportes.cercanos", "usuario", usuario.getNombre()).increment();
+                }
+            }
+        }
+    }
+
+    private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {
+        double radioTierra = 6371; // Radio de la tierra en km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return radioTierra * c;
     }
 
     @Override
@@ -254,6 +301,9 @@ public class ReporteServicioImpl implements ReporteServicio {
         // Actualizar estado actual del reporte
         reporte.setEstadoActual(nuevoEstado);
         reporteRepo.save(reporte);
+
+        // Métrica de cambio de estado
+        meterRegistry.counter("reportes.estado.cambios", "estado", nuevoEstado.name()).increment();
 
         // Crear historial del cambio
         HistorialReporte.HistorialReporteBuilder historialBuilder = HistorialReporte.builder()

@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/api/usuarios/notificacion",
                                 "/api/usuarios/Activar",
                                 "/api/usuarios",
-                                "/api/imagenes"
+                                "/api/imagenes",
+                                "/actuator/**" 
                         ).permitAll()
 
                         // 🔹 GET moderador (cliente y moderador)

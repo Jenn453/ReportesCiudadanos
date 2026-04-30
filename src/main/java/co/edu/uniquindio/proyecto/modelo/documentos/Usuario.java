@@ -4,6 +4,7 @@ import co.edu.uniquindio.proyecto.modelo.enums.Ciudad;
 import co.edu.uniquindio.proyecto.modelo.enums.EstadoUsuario;
 import co.edu.uniquindio.proyecto.modelo.enums.Rol;
 import co.edu.uniquindio.proyecto.modelo.vo.CodigoValidacion;
+import co.edu.uniquindio.proyecto.modelo.vo.Ubicacion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,7 @@ public class Usuario {
     private String password;
     private CodigoValidacion codigoValidacion;
     private LocalDateTime fechaRegistro;
+    private Ubicacion ubicacion;
 
    /* public void setCiudad (String ciudad) throws Exception {
         boolean existeCiudad = false;
