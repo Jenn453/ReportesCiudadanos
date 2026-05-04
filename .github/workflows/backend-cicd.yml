@@ -18,6 +18,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Remove local Java home from gradle.properties
+        run: |
+          if [ -f gradle.properties ]; then
+            sed -i '/org.gradle.java.home/d' gradle.properties
+          fi
+
       - name: Run unit tests
         run: ./gradlew test --tests co.edu.uniquindio.proyecto.servicios.ReporteServicioTest
 
