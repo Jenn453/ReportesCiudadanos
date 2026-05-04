@@ -1,0 +1,49 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Run unit tests
+        run: ./gradlew test --tests co.edu.uniquindio.proyecto.servicios.ReporteServicioTest
+
+      - name: Build JAR
+        run: ./gradlew clean build -x test
+
+      - name: Copy JAR to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 3.137.205.38
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          source: "build/libs/ReportesCiudadanos-0.0.1-SNAPSHOT.jar"
+          target: "/home/ec2-user/"
+          strip_components: 2
+
+      - name: Restart app on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 3.137.205.38
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            kill $(ps aux | grep jar | grep -v grep | awk '{print $2}') || true
+            sleep 2
+            nohup java -jar /home/ec2-user/ReportesCiudadanos-0.0.1-SNAPSHOT.jar \
+              > /home/ec2-user/app.log 2>&1 &
+            sleep 5
+            ps aux | grep java
